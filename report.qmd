@@ -1,0 +1,106 @@
+---
+title: "Зээл эргэн төлөх эрсдэлийн үнэлгээ: Naive Bayes ба Decision Tree"
+subtitle: ""
+abstract: >
+  Энэхүү тайланд зээлийн мэдээлэлд тулгуурлан зээл хүсэгчид зээлээ буцаан төлөх
+  эсэхийг Naive Bayes болон Decision Tree ангилагч ашиглан урьдчилан таамаглав.
+  Өгөгдөл дээр урьдчилсан боловсруулалт, судалгааны шинжилгээ (EDA),
+  хоёр төрлийн ангилагчийн гүйцэтгэлийг харьцуулан авч үзэв.
+author: "Erdenetuya" "Bayarbileg"
+date: 2025-12-05
+date-format: "YYYY оны M-р сарын D"
+project:
+  execute-dir: project
+  preview: false
+toc: true
+toc-depth: 3
+toc-title: Агуулга
+number-sections: true
+format:
+  pdf:
+    echo: true
+    pdf-engine: xelatex
+    papersize: a4paper
+    geometry:
+      - left=2cm
+      - right=2cm
+      - top=2cm
+      - bottom=3cm
+    include-in-header:
+      - text: |
+          \usepackage[english,mongolian]{babel}
+          \usepackage{fontspec}
+          % үндсэн текстийн шрифт
+          \setmainfont{Times New Roman}
+          % код хэсгийн шрифт
+          \setmonofont{DejaVu Sans Mono}
+          \AddToHook{env/Highlighting/begin}{\footnotesize}
+          % үндсэн гарчиг
+          \usepackage{titling}
+          \pretitle{\begin{center}\LARGE\bfseries}
+          \posttitle{\par\end{center}\vskip 1em}
+          % сэдвийн зүйлчлэл хэсгийн шрифт
+          \usepackage{titlesec}
+          \titleformat{\section}{\normalfont\Large\bfseries\selectfont}{\thesection}{1em}{}
+          \titleformat{\subsection}{\normalfont\large\bfseries\selectfont}{\thesubsection}{1em}{}
+          \titleformat{\subsubsection}{\normalfont\normalsize\bfseries\selectfont}{\thesubsubsection}{1em}{}
+          % агуулгын жагсаалт доторх шрифт
+          \usepackage{tocloft}
+          \renewcommand{\cfttoctitlefont}{\Large\bfseries\fontspec{Times New Roman}}
+          \renewcommand{\cftaftertoctitle}{\vskip 1em}
+          \renewcommand{\cftsecfont}{\normalfont\selectfont}
+          \renewcommand{\cftsecpagefont}{\normalfont\selectfont}
+          \renewcommand{\cftsubsecfont}{\normalfont\selectfont}
+          \renewcommand{\cftsubsecpagefont}{\normalfont\selectfont}
+          \renewcommand{\contentsname}{Агуулга}
+    latex-max-runs: 3
+editor: source
+execute:
+  echo: false
+crossref: 
+  fig-title: Зураг
+  fig-prefix: Зураг
+  tbl-title: Хүснэгт
+  tbl-prefix: Хүснэгт
+fig-align: center
+fig-env: "figure"
+fig-height: 4
+fig-width: 6
+fig-pos: "!ht"
+fig-format: pdf
+fig-cap-location: top
+tbl-cap-location: top
+bibliography: references.bib
+csl: ieee.csl
+citeproc: true
+link-citations: true
+---
+
+```{python}
+#| label: setup
+#| echo: false
+
+import os
+import numpy as np
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+    roc_curve,
+    roc_auc_score
+)
+
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+
+import matplotlib.pyplot as plt
+
+output_dir = "_files"
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
