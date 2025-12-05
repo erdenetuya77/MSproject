@@ -47,6 +47,8 @@ format:
           \renewcommand{\cftsubsecfont}{\normalfont\selectfont}
           \renewcommand{\cftsubsecpagefont}{\normalfont\selectfont}
           \renewcommand{\contentsname}{Агуулга}
+          \usepackage{fvextra}
+          \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
 editor: source
 execute:
   echo: true
@@ -502,7 +504,7 @@ plt.show()
 
 **Үзүүлэлтүүдийн тайлбар:**
 
-- **Accuracy (83%)**: Загварын таамаг 100 хүнээс 83-ыг зөв байна
+- **Accuracy (83%)**: Загварын таамаг 100-аас 83 нь зөв байна
 - **Precision (65%)**: Төлөхгүй гэж таамагласан хүмүүсийн 65% нь төлөөгүй
 - **Recall (43%)**: Төлөхгүй хүмүүсийн 43%-ийн зөв таамагласан
 - **F1-Score (52%)**: Precision болон Recall-ын тэнцвэртэй байна
