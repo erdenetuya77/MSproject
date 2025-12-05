@@ -6,7 +6,7 @@ abstract: >
   эсэхийг Naive Bayes болон Decision Tree ангилагч ашиглан урьдчилан таамаглав.
   Өгөгдөл дээр урьдчилсан боловсруулалт, судалгааны шинжилгээ (EDA),
   хоёр төрлийн ангилагчийн гүйцэтгэлийг харьцуулан авч үзэв.
-author: "Erdenetuya" "Bayarbileg"
+author: "Erdenetuya,Bayrbileg"
 date: 2025-12-05
 date-format: "YYYY оны M-р сарын D"
 project:
@@ -30,21 +30,16 @@ format:
       - text: |
           \usepackage[english,mongolian]{babel}
           \usepackage{fontspec}
-          % үндсэн текстийн шрифт
           \setmainfont{Times New Roman}
-          % код хэсгийн шрифт
           \setmonofont{DejaVu Sans Mono}
           \AddToHook{env/Highlighting/begin}{\footnotesize}
-          % үндсэн гарчиг
           \usepackage{titling}
           \pretitle{\begin{center}\LARGE\bfseries}
           \posttitle{\par\end{center}\vskip 1em}
-          % сэдвийн зүйлчлэл хэсгийн шрифт
           \usepackage{titlesec}
           \titleformat{\section}{\normalfont\Large\bfseries\selectfont}{\thesection}{1em}{}
           \titleformat{\subsection}{\normalfont\large\bfseries\selectfont}{\thesubsection}{1em}{}
           \titleformat{\subsubsection}{\normalfont\normalsize\bfseries\selectfont}{\thesubsubsection}{1em}{}
-          % агуулгын жагсаалт доторх шрифт
           \usepackage{tocloft}
           \renewcommand{\cfttoctitlefont}{\Large\bfseries\fontspec{Times New Roman}}
           \renewcommand{\cftaftertoctitle}{\vskip 1em}
@@ -76,6 +71,7 @@ citeproc: true
 link-citations: true
 ---
 
+
 ```{python}
 #| label: setup
 #| echo: false
@@ -87,20 +83,171 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    confusion_matrix,
-    roc_curve,
-    roc_auc_score
+accuracy_score,
+precision_score,
+recall_score,
+f1_score,
+confusion_matrix,
+roc_curve,
+roc_auc_score,
 )
 
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.impute import SimpleImputer  # 🔹 NaN нөхөхөд хэрэгтэй
 
 import matplotlib.pyplot as plt
 
+# Гаралт хадгалах хавтас
+
 output_dir = "_files"
 if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+os.makedirs(output_dir)
+
+# -----------------------------
+
+# 1. Өгөгдөл унших
+
+# -----------------------------
+
+data = pd.read_csv("data/credit_risk_dataset.csv")
+
+# -----------------------------
+
+# 2. Target ба Feature-үүдийг салгах
+
+# -----------------------------
+
+y = data["loan_status"]
+X_raw = data.drop(columns=["loan_status"])
+
+# -----------------------------
+
+# 3. NaN-уудыг нөхөх (тоон ба ангилал тус тусад нь)
+
+# -----------------------------
+
+num_cols = X_raw.select_dtypes(include=["int64", "float64"]).columns
+cat_cols = X_raw.select_dtypes(include=["object", "bool"]).columns
+
+imputer_num = SimpleImputer(strategy="median")
+imputer_cat = SimpleImputer(strategy="most_frequent")
+
+X_raw[num_cols] = imputer_num.fit_transform(X_raw[num_cols])
+X_raw[cat_cols] = imputer_cat.fit_transform(X_raw[cat_cols])
+
+# -----------------------------
+
+# 4. One-hot encoding (categorical → dummy хувьсагч)
+
+# -----------------------------
+
+X = pd.get_dummies(X_raw, drop_first=True)
+
+# -----------------------------
+
+# 5. Train / Test Split
+
+# -----------------------------
+
+X_train, X_test, y_train, y_test = train_test_split(
+X,
+y,
+test_size=0.2,
+random_state=42,
+stratify=y,
+)
+
+# -----------------------------
+
+# 6. Скейл хийх (Naive Bayes-д тохируулж)
+
+# -----------------------------
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Хэрвээ нэг шалгахыг хүсвэл дараах 2 мөрийг түр нээж болно:
+
+# print(X_train.shape, X_test.shape)
+
+# print(np.isnan(X_train).any(), np.isnan(X_test).any())
+
+```
+
+```{python}
+#| label: naive-bayes
+#| echo: true
+
+nb_model = GaussianNB()
+nb_model.fit(X_train, y_train)
+
+y_pred_nb = nb_model.predict(X_test)
+y_proba_nb = nb_model.predict_proba(X_test)[:, 1]
+
+metrics_nb = {
+"Accuracy": accuracy_score(y_test, y_pred_nb),
+"Precision": precision_score(y_test, y_pred_nb),
+"Recall": recall_score(y_test, y_pred_nb),
+"F1-score": f1_score(y_test, y_pred_nb),
+"AUC": roc_auc_score(y_test, y_proba_nb),
+}
+
+metrics_nb
+```
+
+```{python}
+#| label: decision-tree
+#| echo: true
+
+dt_model = DecisionTreeClassifier(max_depth=5, random_state=42)
+dt_model.fit(X_train, y_train)
+
+y_pred_dt = dt_model.predict(X_test)
+y_proba_dt = dt_model.predict_proba(X_test)[:, 1]
+
+metrics_dt = {
+"Accuracy": accuracy_score(y_test, y_pred_dt),
+"Precision": precision_score(y_test, y_pred_dt),
+"Recall": recall_score(y_test, y_pred_dt),
+"F1-score": f1_score(y_test, y_pred_dt),
+"AUC": roc_auc_score(y_test, y_proba_dt),
+}
+
+metrics_dt
+```
+
+```{python}
+#| label: compare-metrics
+#| echo: true
+#| tbl-cap: Naive Bayes ба Decision Tree моделийн гүйцэтгэлийн харьцуулалт
+
+compare_df = pd.DataFrame({
+"Naive Bayes": metrics_nb,
+"Decision Tree": metrics_dt
+})
+compare_df
+```
+
+```{python}
+#| label: fig-roc
+#| fig-cap: Naive Bayes болон Decision Tree моделуудын ROC муруй
+#| echo: false
+
+fpr_nb, tpr_nb, _ = roc_curve(y_test, y_proba_nb)
+fpr_dt, tpr_dt, _ = roc_curve(y_test, y_proba_dt)
+
+fig, ax = plt.subplots(figsize=(6,4))
+ax.plot(fpr_nb, tpr_nb, label=f"Naive Bayes (AUC={metrics_nb['AUC']:.2f})")
+ax.plot(fpr_dt, tpr_dt, label=f"Decision Tree (AUC={metrics_dt['AUC']:.2f})")
+ax.plot([0,1],[0,1], linestyle="--", color="grey")
+ax.set_xlabel("False Positive Rate")
+ax.set_ylabel("True Positive Rate")
+ax.legend()
+fig.tight_layout()
+
+fig_path = os.path.join(output_dir, "roc_compare.pdf")
+fig.savefig(fig_path)
+plt.close(fig)
+```
