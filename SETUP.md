@@ -42,7 +42,6 @@ MSproject/
 ├── requirements.txt                 # Python сангууд
 ├── README.md                        # Төслийн тайлбар
 ├── SETUP.md                         # Энэ заавар
-└── .gitignore                       # Git ignore файл
 ```
 
 ### Шалгах:
