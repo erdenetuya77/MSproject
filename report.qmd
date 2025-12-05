@@ -414,7 +414,7 @@ $$
 
 ```{python}
 #| echo: true
-#| results:true
+#| results: true
 
 # Gaussian Naive Bayes загвар үүсгэх
 nb_model = GaussianNB()
@@ -436,7 +436,8 @@ print(f"✓ {X_test.shape[0]} хүний зээл төлөх байдлыг та
 
 ```{python}
 #| echo: true
-#| results:true
+#| results: true
+
 # Үнэлгээний үзүүлэлтүүд тооцоолох
 acc = accuracy_score(y_test, y_pred_nb)
 prec = precision_score(y_test, y_pred_nb)
@@ -459,7 +460,8 @@ performance = pd.DataFrame({
 
 ```{python}
 #| echo: true
-#| results:true
+#| results: true
+
 #| label: tbl-performance
 #| tbl-cap: "Naive Bayes загварын гүйцэтгэлийн үзүүлэлтүүд"
 
