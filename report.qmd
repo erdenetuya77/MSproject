@@ -113,12 +113,16 @@ os.makedirs(output_dir, exist_ok=True)
 
 ## Өгөгдлийн эх сурвалж
 
-Бид Kaggle вэб сайтаас "Credit Risk Dataset" [@kaggle_credit_risk] нэртэй өгөгдлийн багцыг авсан. Энэ өгөгдөлд 32,581 хүний зээлийн мэдээлэл багтсан байна. Өгөгдөл дотор нийт 12 төрлийн мэдээлэл буюу хувьсагч байна.
+Kaggle вэб сайтаас "Credit Risk Dataset" [@kaggle_credit_risk] нэртэй өгөгдлийн багцыг авсан. 
+Энэ өгөгдөлд 32,581 хүний зээлийн мэдээлэл багтсан байна. 
+Өгөгдөл дотор нийт 12 төрлийн хувьсагч байна.
 
 ```{python}
-# Өгөгдөл уншиж авах
+#| echo: true
+#| results: true
+
 df = pd.read_csv('data/credit_risk_dataset.csv')
-print(f'Өгөгдлийн хэмжээ: {df.shape[0]} хүн, {df.shape[1]} мэдээлэл')
+print(f"Өгөгдлийн хэмжээ: {df.shape[0]} хүн, {df.shape[1]} мэдээлэл")
 ```
 
 ## Өгөгдлийн бүтэц
